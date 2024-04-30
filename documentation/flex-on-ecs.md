@@ -541,7 +541,7 @@ As examples, the Flex Gateway instances I use for demos are typically named `fle
 
 You can end your SSH session as you no longer need it.
 
-In [Part 2](#part-2-complete-flex-gateway-specific-tasks) of this guide, I will upload the registration file of a new Flex Gateway instance (named `flex-gw-demo-dev-01`) to this subdirectory. For convenience, I refer to this subdirectory as `<Flex GW Home>` for the remainder of this guide.
+In **Part 2** of this guide, I will upload the registration file of a new Flex Gateway instance (named `flex-gw-demo-dev-01`) to this subdirectory. For convenience, I refer to this subdirectory as `<Flex GW Home>` for the remainder of this guide.
 
 ### 1.6 – Create ECS Resources
 
@@ -739,19 +739,16 @@ I generally follow the high-level process ***Add a Flex Gateway*** described in 
 
 Before you begin, it is crucial to understand that a Flex Gateway instance is tied to 1) an Anypoint organization or business group and 2) an Anypoint environment (e.g., sandbox, production).
 
-<img src="assets/media/image34.png" style="width:6.5in;height:5.88194in" />
+<img src="assets/images/flex-on-ecs-2-1-0-01-runtime-manager-add-flex.png" style="width:6.5in;height:5.9in" />
 
 For example, I selected the **Demo** business group and the **Dev** environment in the screen capture above, and the prepopulated values reflect those selections.
 
 **Before you begin, make sure you have the following information:**
 
-- `<Key Pair Filename>` – You created the EC2 key pair in [step 1.4.1](#create-an-ec2-key-pair).
-
-- `<EC2 Public DNS name>` – You created the EC2 instance and saved its `PublicDnsName` and `PublicIpAddress` in [step 1.4.2](#launch-ec2-instance-1).
-
-- `<EC2 Local Mount Point>` – You mounted the EFS file system to this directory in [step 1.5.2](#mount-efs-file-system-1).
-
-- `<Flex GW Home>` – Optional – [Step 1.5.3](#optional-create-subdirectory) was optional but if you completed it, you created a subdirectory on the EFS file system and saved its name.
+- `<Key Pair Filename>` – You created the EC2 key pair in **step 1.4.1**.
+- `<EC2 Public DNS name>` – You created the EC2 instance and saved its `PublicDnsName` and `PublicIpAddress` in step **1.4.2**.
+- `<EC2 Local Mount Point>` – You mounted the EFS file system to this directory in **step 1.5.2**.
+- `<Flex GW Home>` – Optional – **Step 1.5.3** was optional but if you completed it, you created a subdirectory on the EFS file system and saved its name.
 
 #### 2.1.1 – Pull Flex Gateway Docker Image
 
@@ -759,9 +756,11 @@ Step 1 (***Pull the image***) of the Anypoint Runtime Manager generic instructio
 
 - Open a terminal (Linux or Mac) and execute the following Docker command.
 
-docker pull mulesoft/flex-gateway
+  ```bash
+  docker pull mulesoft/flex-gateway
+  ```
 
-> <img src="assets/media/image35.png" style="width:6.5in;height:1.96458in" />
+  <img src="assets/images/flex-on-ecs-2-1-1-01-docker-pull.png" style="width:6.5in;height:2.0in" />
 
 #### 2.1.2 – Register Flex Gateway Instance
 
@@ -779,15 +778,16 @@ Step 2 (***Register your gateway***) of the Anypoint Runtime Manager generic ins
 
 - In the high-level instructions displayed, locate step 2 (***Register your gateway***) and copy the command.
 
-<img src="assets/media/image36.png" style="width:6.5in;height:2.9625in" />
+  <img src="assets/images/flex-on-ecs-2-1-2-01-register-gateway-command.png" style="width:6.5in;height:3.0in" />
 
 - Optionally, paste this command to a text editor to make any necessary changes. Do not forget to replace the `<gateway-name>` placeholder with the name of your instance.
 
-> Tip: I suggest adding the flag `--rm` before the flag `--entrypoint` to dispose of the container automatically once the registration completes, as it is no longer required. Without this flag, the Docker container runs, the process completes, the container stops, and it remains on the system until you delete it, which you often forget to do.
+> [!TIP]
+> I suggest adding the flag `--rm` before the flag `--entrypoint` to dispose of the container automatically once the registration completes, as it is no longer required. Without this flag, the Docker container runs, the process completes, the container stops, and it remains on the system until you delete it, which you often forget to do.
 
 - Finally, paste the command into the terminal (Linux or Mac) and execute it to register your new Flex Gateway instance.
 
-<img src="assets/media/image37.png" style="width:6.5in;height:1.88958in" />
+  <img src="assets/images/flex-on-ecs-2-1-2-02-register-gateway-execution.png" style="width:6.5in;height:1.9in" />
 
 The registration command creates a file named `registration.yaml` in the current directory on your computer. This registration file is specific to the Flex Gateway instance you just registered. As a reminder, it is tied to the selected 1) Anypoint organization or business group and 2) Anypoint environment.
 
@@ -796,17 +796,16 @@ The registration command creates a file named `registration.yaml` in the current
 Next, you upload the Flex Gateway registration file to the EFS file system using the secure copy (`scp`).
 
 - In a terminal (Linux or Mac), execute the following command to upload the Flex Gateway registration file to the EFS file system.
+  - Replace `<Key Pair Filename>`, `<EC2 Public DNS name>`, `<EC2 Local Mount Point>`, and `<Flex GW Home>` with the values you picked or copied in previous steps.
+  - If needed, add the path of the registration file.
 
+  ```bash
+  scp -i <Key Pair Filename> \
+    registration.yaml \
+    ec2-user@<EC2 Public DNS name>:<EC2 Local Mount Point>/<Flex GW Home>/
+  ```
 
-- Replace `<Key Pair Filename>`, `<EC2 Public DNS name>`, `<EC2 Local Mount Point>`, and `<Flex GW Home>` with the values you picked or copied in previous steps.
-
-- If needed, add the path of the registration file.
-
-scp -i \<Key Pair Filename\> \
-registration.yaml \
-ec2-user@\<EC2 Public DNS name\>:\<EC2 Local Mount Point\>/`<Flex GW Home>`/
-
-<img src="assets/media/image38.png" style="width:6.5in;height:1.28958in" />
+  <img src="assets/images/flex-on-ecs-2-1-3-01-upload-registration-file.png" style="width:6.5in;height:1.3in" />
 
 > [!NOTE]
 > `ec2-user` is the default user for an EC2 instance running Amazon Linux. Adjust the command above appropriately if you picked a different AMI and Linux distribution.
@@ -817,111 +816,84 @@ Finally, in this section, you create a minimalistic ECS service that starts a si
 
 **Before you begin, make sure you have the following information:**
 
-- `<ECS Cluster Name>` – You created the ECS cluster in [step 1.6.3](#create-an-ecs-cluster).
-
-- `<Security Group for All Resources>` – You created this security group and saved its `GroupId` in [step 1.2.1](#create-security-group-for-all-resources).
-
-- `<Subnet ID A>`, `<Subnet ID B>`, `<Subnet ID C>`, and `<Subnet ID D>` – You retrieved and saved the subnet id of a subset or all availability zones in [step 1.1.3](#get-subnets-id). Feel free to use any of them, but for the ECS service, I arbitrarily use four availability zones and their subnet.
+- `<ECS Cluster Name>` – You created the ECS cluster in **step 1.6.3**.
+- `<Security Group for All Resources>` – You created this security group and saved its `GroupId` in **step 1.2.1**.
+- `<Subnet ID A>`, `<Subnet ID B>`, `<Subnet ID C>`, and `<Subnet ID D>` – You retrieved and saved the subnet id of a subset or all availability zones in **step 1.1.3**. Feel free to use any of them, but for the ECS service, I arbitrarily use four availability zones and their subnet.
 
 #### 2.2.1 – Create Service JSON File
 
-You first create a JSON file to describe your ECS task service. In this step, you focused on creating a minimalistic ECS service that starts a single Flex Gateway replica. In [Part 3](#part-3-tack-on-high-availability), you will build upon this minimalistic configuration and address high-availability for example. As the content of the JSON file is specific to your Flex Gateway instance, my typical file naming convention is as follows.
+You first create a JSON file to describe your ECS task service. In this step, you focused on creating a minimalistic ECS service that starts a single Flex Gateway replica. In **Part 3**, you will build upon this minimalistic configuration and address high-availability for example. As the content of the JSON file is specific to your Flex Gateway instance, my typical file naming convention is as follows.
 
-ECS-Service-\<Flex Instance Name\>-Minimal.json
+`ECS-Service-<Flex Instance Name>-Minimal.json`
 
 - Create a JSON file that contains the following ECS service definition and name the file as you see fit.
+  - Replace `<ECS Cluster Name>`, `<Flex Instance Name>`, `<Security Group for All Resources>`, `<Subnet ID A>`, `<Subnet ID B>`, `<Subnet ID C>`, and `<Subnet ID D>` with the values you picked or copied in previous steps.
 
-
-- Replace `<ECS Cluster Name>`, `<Flex Instance Name>`, `<Security Group for All Resources>`, `<Subnet ID A>`, `<Subnet ID B>`, `<Subnet ID C>`, and `<Subnet ID D>` with the values you picked or copied in previous steps.
-
-{
-
-"cluster": "\<ECS Cluster Name\>",
-
-"serviceName": "\<Flex Instance Name\>-Service",
-
-"taskDefinition": "\<Flex Instance Name\>-Task-Def",
-
-"launchType": "FARGATE",
-
-"schedulingStrategy": "REPLICA",
-
-"deploymentController": {
-
-"type": "ECS"
-
-},
-
-"platformVersion": "LATEST",
-
-"networkConfiguration": {
-
-"awsvpcConfiguration": {
-
-"assignPublicIp": "ENABLED",
-
-"securityGroups": \[
-
-"\<Security Group for All Resources\>"
-
-\],
-
-"subnets": \[
-
-"\<Subnet ID A\>",
-
-"\<Subnet ID B\>",
-
-"\<Subnet ID C\>",
-
-"\<Subnet ID D\>"
-
-\]
-
-}
-
-},
-
-"desiredCount": 1
-
-}
+  ```json
+  {
+    "cluster": "<ECS Cluster Name>",
+    "serviceName": "<Flex Instance Name>-Service",
+    "taskDefinition": "<Flex Instance Name>-Task-Def",
+    "launchType": "FARGATE",
+    "schedulingStrategy": "REPLICA",
+    "deploymentController": {
+      "type": "ECS"
+    },
+    "platformVersion": "LATEST",
+    "networkConfiguration": {
+      "awsvpcConfiguration": {
+        "assignPublicIp": "ENABLED",
+        "securityGroups": [
+          "<Security Group for All Resources>"
+        ],
+        "subnets": [
+          "<Subnet ID A>",
+          "<Subnet ID B>",
+          "<Subnet ID C>",
+          "<Subnet ID D>"
+        ]
+      }
+    },
+    "desiredCount": 1
+  }
+  ```
 
 > [!NOTE]
 > - As implied in the `desiredCount` property, you instruct ECS to run one Flex Gateway container for your service. Naturally, you could increase this number. At this stage of your configuration, ECS will initially attempt to start as many containers as you specified but, as you have not included a load balancer, it will ultimately revert to running only one.
-> - Arguably, you only need one subnet for your ECS service as you only run one container. However, I specify the four I leverage here as it simplifies updating the service in [Part 3](#part-3-tack-on-high-availability) when adding a load balancer.
+> - Arguably, you only need one subnet for your ECS service as you only run one container. However, I specify my four subnets here as it simplifies updating the service in **Part 3** when adding a load balancer.
 
 #### 2.2.2 – Create and Run ECS Service
 
 Finally, you create the ECS service using the JSON file created in the previous step. In reality, ECS starts and runs the service when you issue the AWS CLI command `aws ecs create-service`.
 
 - Execute the following AWS CLI command to create and run the ECS service.
+  - If needed, update the `file` option to include the path of the JSON file.
+  - Optionally change the AWS region.
 
+  ```bash
+  aws ecs create-service \
+    --cli-input-json file://ECS-Service-flex-gw-demo-dev-01-Minimal.json \
+    --region us-east-1 \
+    --tags key=Project,value="Flex on ECS" \
+    --no-cli-pager
+  ```
 
-- If needed, update the `file` option to include the path of the JSON file.
-
-- Optionally change the AWS region.
-
-aws ecs create-service \
---cli-input-json file://ECS-Service-flex-gw-demo-dev-01-Minimal.json \
---region us-east-1 \
---tags key=Project,value="Flex on ECS" \
---no-cli-pager
-
-<img src="assets/media/image39.png" style="width:6.5in;height:3.05903in" />
+  <img src="assets/images/flex-on-ecs-2-2-2-01-create-ecs-service.png" style="width:6.5in;height:3.1in" />
 
 - Execute the following AWS CLI command to wait for the state of the ECS service to change to running.
+  - Replace `<Service Name>` with the value you picked when you created the JSON file in the previous step; look for the value of the `serviceName` property.
 
+  ```bash
+  aws ecs wait services-stable \
+    --cluster Flex-GW-ECS-Cluster \
+    --services <Service Name> && \
+    echo $?
+  ```
 
-- Replace `<Service Name>` with the value you picked when you created the JSON file in the previous step; look for the value of the `serviceName` property.
+  <img src="assets/images/flex-on-ecs-2-2-2-02-aws-ecs-wait.png" style="width:6.5in;height:1.5in" />
 
-aws ecs wait services-stable \
---cluster Flex-GW-ECS-Cluster \
---services \<Service Name\> && \
-echo \$?
-
-<img src="assets/media/image40.png" style="width:6.5in;height:1.51458in" />
-
-> Remark: This command polls every 15 seconds until the ECS service is running. It exits with a return code of 0 when successful and 255 after 40 failed checks.
+> [!IMPORTANT] 
+> This command polls every 15 seconds until the ECS service is running. It exits with a return code of 0 when successful and 255 after 40 failed checks.
 
 #### 2.2.3 – (Optional) View in Anypoint Platform
 
@@ -935,54 +907,54 @@ Optionally, you verify that your Flex Gateway replica connected successfully to 
 
 - Next, select the **Flex Gateways** option in the left menu.
 
-<img src="assets/media/image41.png" style="width:6.5in;height:2.00139in" />
+<img src="assets/images/flex-on-ecs-2-2-3-01-connected-flex-replica.png" style="width:6.5in;height:2.0in" />
 
 As per the screen capture, you should see one replica, and the status of your Flex Gateway instance should be connected.
 
 #### 2.2.4 – Get Public DNS Name of Flex Gateway Replica
 
-Finally, you retrieve the public DNS name of the Flex Gateway replica, which you will need in [Part 3](#part-3-tack-on-high-availability) to interact with the Flex Gateway replica.
+Finally, you retrieve the public DNS name of the Flex Gateway replica, which you will need in **Part 3** to interact with the Flex Gateway replica.
 
 - First, execute the following AWS CLI command to get the ARN of the Flex Gateway replica task.
+  - Replace `<ECS Cluster Name>` and `<Service Name>` with the values you picked or copied in previous steps.
 
+  ```bash
+  aws ecs list-tasks \
+    --cluster <ECS Cluster Name> \
+    --service-name <Service Name> \
+    --no-cli-pager
+  ```
 
-- Replace `<ECS Cluster Name>` and `<Service Name>` with the values you picked or copied in previous steps.
-
-aws ecs list-tasks \
---cluster \<ECS Cluster Name\> \
---service-name \<Service Name\> \
---no-cli-pager
-
-<img src="assets/media/image42.png" style="width:6.5in;height:1.66458in" />
+  <img src="assets/images/flex-on-ecs-2-2-4-01-aws-ecs-list-tasks.png" style="width:6.5in;height:1.7in" />
 
 Copy the task ARN as you need it in the next step.
 
 - Next, execute the following AWS CLI command to get the id of the network interface attached to the Flex Gateway replica task.
+  - Replace `<ECS Cluster Name>` and `<Task ARN>` with the values you picked and copied in previous steps.
 
+  ```bash
+  aws ecs describe-tasks \
+    --cluster <ECS Cluster Name> \
+    --tasks <Task ARN> \
+    --query "tasks[0].attachments[0].{ENI: details[?name=='networkInterfaceId'].value | [0]}"
+  ```
 
-- Replace `<ECS Cluster Name>` and `<Task ARN>` with the values you picked and copied in previous steps.
-
-aws ecs describe-tasks \
---cluster \<ECS Cluster Name\> \
---tasks \<Task ARN\> \
---query "tasks\[0\].attachments\[0\].{ENI: details\[?name=='networkInterfaceId'\].value \| \[0\]}"
-
-<img src="assets/media/image43.png" style="width:6.5in;height:1.21458in" />
+  <img src="assets/images/flex-on-ecs-2-2-4-02-aws-ecs-describe-tasks.png" style="width:6.5in;height:1.2in" />
 
 Copy the network interface id as you need it in the next step.
 
 - Finally, execute the following AWS CLI command to get the public DNS name of the Flex Gateway replica.
+  - Replace `<Network Interface ID>` with the value you copied in the previous step.
 
+  ```bash
+  aws ec2 describe-network-interfaces \
+    --network-interface-ids <Network Interface ID> \
+    --query "NetworkInterfaces[0].Association.{DNSName: PublicDnsName, IP: PublicIp}
+  ```
 
-- Replace `<Network Interface ID>` with the value you copied in the previous step.
+  <img src="assets/images/flex-on-ecs-2-2-4-03-aws-ec2-describe-network-interfaces.png" style="width:6.5in;height:1.1in" />
 
-aws ec2 describe-network-interfaces \
---network-interface-ids \<Network Interface ID\> \
---query "NetworkInterfaces\[0\].Association.{DNSName: PublicDnsName, IP: PublicIp}
-
-<img src="assets/media/image44.png" style="width:6.5in;height:1.13958in" />
-
-Copy and save the public DNS name of the Flex Gateway replica, as you will need it in [Part 3](#part-3-tack-on-high-availability). I refer to this value as `<Flex Replica DNS Name>` throughout this guide.
+Copy and save the public DNS name of the Flex Gateway replica, as you will need it in **Part 3**. I refer to this value as `<Flex Replica DNS Name>` throughout this guide.
 
 ## Part 3 – Tack on High Availability
 
