@@ -967,8 +967,7 @@ First, you register an API with Flex Gateway and then you call it using cURL or 
 **Before you begin, make sure you have the following information:**
 
 - `<API Endpoint>` – The endpoint of the API you plan to register with Flex Gateway.
-
-- `<Flex Replica DNS Name>` – You retrieved and saved the public DNS name of the Flex Gateway replica in [step 2.2.4](#get-public-dns-name-of-flex-gateway-replica).
+- `<Flex Replica DNS Name>` – You retrieved and saved the public DNS name of the Flex Gateway replica in **step 2.2.4**.
 
 #### 3.1.1 – Register the API
 
@@ -983,49 +982,38 @@ I leverage a basic Credit Check API in this guide, which I purposely built using
 
 - In **API Manager**, if applicable, select the root organization or the appropriate business group (top right corner) and the correct environment (top left corner) where you registered the Flex Gateway instance.
 
-> **Important:** You must select the same business group (or the root organization) and environment (top left corner) where you registered the Flex Gateway instance.
+> [!WARNING]
+> You must select the same business group (or the root organization) and environment (top left corner) where you registered the Flex Gateway instance.
 
-<img src="assets/media/image45.png" style="width:6.5in;height:1.74792in" />
+  <img src="assets/images/flex-on-ecs-3-1-1-01-api-manager.png" style="width:6.5in;height:1.7in" />
 
 - Click the **Add API** button and select the **Add new API** from the dropdown list.
 
-<img src="assets/media/image46.png" style="width:6.5in;height:2.18819in" />
+  <img src="assets/images/flex-on-ecs-3-1-1-02-api-manager-add-api.png" style="width:6.5in;height:2.2in" />
 
 - On the **Runtime** tab, select **Flex Gateway** for the runtime, the Flex Gateway instance you registered in [step 2.1](#register-flex-gateway-instance), and click the **Next** button.
 
-<img src="assets/media/image47.png" style="width:6.5in;height:4.79444in" />
+  <img src="assets/images/flex-on-ecs-3-1-1-03-add-api-runtime-tab.png" style="width:6.5in;height:4.8in" />
 
 - On the **API** tab, I assume you are adding an API you have not published to Anypoint Exchange.
+  - Select **Create new API**,
+  - Enter a name,
+  - If you have a specification, select **REST API** for the Asset type; select **HTTP API** otherwise,
+  - Select to upload a RAML specification or an OAS document.
+  - Upload the specification by clicking on the Choose file button, and
+  - Click the **Next** button.
 
-
-- Select **Create new API**,
-
-- Enter a name,
-
-- If you have a specification, select **REST API** for the Asset type; select **HTTP API** otherwise,
-
-- Select to upload a RAML specification or an OAS document.
-
-- Upload the specification by clicking on the Choose file button, and
-
-- Click the **Next** button.
-
-<img src="assets/media/image48.png" style="width:6.5in;height:4.79444in" />
+  <img src="assets/images/flex-on-ecs-3-1-1-04-add-api-api-tab.png" style="width:6.5in;height:4.8in" />
 
 API Manager creates an asset in Anypoint Exchange of the selected type and name you entered. Additionally, it attaches the specification to the asset if you uploaded one.
 
 - On the **Downstream** tab:
+  - First, select the appropriate protocol,
+  - For the **Port** setting, enter one of the port mappings you configured in your ECS task definition in **step 1.6.4** (e.g., 8081 in this guide),
+  - Optionally, enter a base path, and
+  - Click the **Next** button.
 
-
-- First, select the appropriate protocol,
-
-- For the **Port** setting, enter one of the port mappings you configured in your ECS task definition in [step 1.6.4](#create-an-ecs-task-definition) (e.g., 8081 in this guide),
-
-- Optionally, enter a base path, and
-
-- Click the **Next** button.
-
-<img src="assets/media/image49.png" style="width:6.5in;height:4.35972in" />
+  <img src="assets/images/flex-on-ecs-3-1-1-05-add-api-downstream-tab.png" style="width:6.5in;height:4.4in" />
 
 > [!NOTE]
 > As per the screen capture above, the Downstream relates to the inbound traffic or the endpoint the Flex Gateway instance will expose. The base path is optional when adding a single API per port number and required if multiple APIs are added to the same port number.
@@ -1033,47 +1021,39 @@ API Manager creates an asset in Anypoint Exchange of the selected type and name 
 Make note, remember, or copy the **Protocol**, **Port**, and **Base path** settings as you will need them to validate the API in the next step. I refer to these values as `<Downstream Endpoint Protocol>`, `<Downstream Endpoint Port>`, and `<Downstream Endpoint Base Path>` respectively.
 
 - On the **Upstream** tab, I only enter the **Upstream URL** and ignore all other settings in this guide.
+  - Enter the API endpoint for the **Upstream URL** (see note below), and
+  - Click the **Next** button.
 
-
-- Enter the API endpoint for the **Upstream URL** (see note below), and
-
-- Click the **Next** button.
-
-<img src="assets/media/image50.png" style="width:6.5in;height:3.92431in" />
+  <img src="assets/images/flex-on-ecs-3-1-1-06-add-api-upstream-tab.png" style="width:6.5in;height:3.9in" />
 
 > [!NOTE]
 > There is no hard rule on how much of an API endpoint you must enter for the **Upstream URL** setting. As a rule of thumb, I prefer to enter the domain name or hostname and port number only.
 >
-> For example, the endpoint of my Credit Check API is:
-> `http://ec2-3-209-205-159.compute-1.amazonaws.com:8081/credit-checks/1`
->
-> For the **Upstream URL** setting, I simply enter:
-> `http://ec2-3-209-205-159.compute-1.amazonaws.com:8081`
+> For example, the endpoint of my Credit Check API is `http://ec2-3-209-205-159.compute-1.amazonaws.com:8081/credit-checks/1`. For the **Upstream URL** setting, I simply enter `http://ec2-3-209-205-159.compute-1.amazonaws.com:8081`.
 
 Make note or remember the portion of the path you did not enter for the **Upstream URL** setting as you will need it to validate the API in the next step. I refer to this value as `<API Endpoint Remaining Path>`, which is `credit-checks/1` in my example.
 
 - Finally, on the **Review** tab, optionally review all settings and click the **Save & Deploy** button.
 
-<img src="assets/media/image51.png" style="width:6.5in;height:5.19028in" />
+  <img src="assets/images/flex-on-ecs-3-1-1-07-add-api-review-tab.png" style="width:6.5in;height:5.2in" />
 
 - You have now registered an API with your Flex Gateway instance that you can leverage for the NLB's health checks.
 
-<img src="assets/media/image52.png" style="width:6.5in;height:2.72778in" />
+  <img src="assets/images/flex-on-ecs-3-1-1-08-add-api-complete.png" style="width:6.5in;height:2.7in" />
 
 You could start adding policies and other configurations to manage and secure this API. Still, I recommend you abstain to avoid any complexity in the following steps.
 
 #### 3.1.2 – Validate the API
 
-Before adding and configuring the NLB, you need to validate the configuration of the API you just added to your Flex Gateway instance. This practice validates you have correctly configured Flex Gateway and the API just added. But it also ensures you nail the correct URL for invoking the API through your Flex Gateway instance. As a reminder, you will use this URL to configure the NLB's health check. If there is any issue in getting a healthy status, the NLB will terminate and replace your Flex Gateway replica.
+Before adding and configuring the NLB, you should validate the configuration of the API you just added to your Flex Gateway instance. This practice ensures you have correctly configured Flex Gateway and the API just added. But it also help determine the correct URL for invoking the API through your Flex Gateway instance. As a reminder, you will use this URL to configure the NLB's health check. If there is any issue in getting a healthy status, the NLB will terminate and replace your Flex Gateway replica.
 
-In short, you need to leverage the settings you picked in the previous step when registering your API, namely `<Downstream Endpoint Protocol>`, `<Downstream Endpoint Port>`, `<Downstream Endpoint Base Path>`, and `<API Endpoint Remaining Path>`. Putting all those settings and the `<Flex Replica DNS Name>` setting, I get the following URL, as an example:
-`http://\<Flex Replica DNS Name\>:8081/credit-checks/1`
+In short, you need to leverage the settings you picked in the previous step when registering your API, namely `<Downstream Endpoint Protocol>`, `<Downstream Endpoint Port>`, `<Downstream Endpoint Base Path>`, and `<API Endpoint Remaining Path>`. Putting all those settings and the `<Flex Replica DNS Name>` setting, I get the following URL, as an example, `http://<Flex Replica DNS Name>:8081/credit-checks/1`
 
 As a reminder, I used the default values for the `<Downstream Endpoint Protocol>`, `<Downstream Endpoint Port>`, and `<Downstream Endpoint Base Path>`.
 
 - Use cURL, Postman, or any other tool of your choice to validate your API.
 
-<img src="assets/media/image53.png" style="width:6.5in;height:2.48889in" />
+  <img src="assets/images/flex-on-ecs-3-1-2-01-curl.png" style="width:6.5in;height:2.5in" />
 
 You are done registering and validating your API with Flex Gateway and are ready to add and configure the NLB.
 
@@ -1082,82 +1062,77 @@ You are done registering and validating your API with Flex Gateway and are ready
 Now, you create and configure a Network Load Balancer (NLB) to load balance client requests to the Flex Gateway replicas for high availability. There are three components you need to create and configure.
 
 - First, you create the NLB, which does not do much without the target group and listener.
-
 - Second, you create the target groups, which define where the NLB will route the incoming requests (e.g., target or destination, protocol, port).
-
 - Finally, you create the listeners, which define the protocol and port the NLB listens for incoming requests to load balance.
 
 **Before you begin, make sure you have the following information:**
 
-- `<Security Group for All Resources>` – You created this security group and saved its `GroupId` in [step 1.2.1](#create-security-group-for-all-resources).
-
-- `<Subnet ID A>`, `<Subnet ID B>`, `<Subnet ID C>`, and `<Subnet ID D>` – You retrieved and saved the subnet id of a subset or all availability zones in [step 1.1.3](#get-subnets-id). As a reminder, I arbitrarily use four availability zones and their subnet for the ECS service; adjust the list of subnet ids to match what you selected when creating your ECS service.
-
-- `<VPC ID>` – You retrieved and saved this value in [step 1.1.2](#get-vpc-id).
+- `<Security Group for All Resources>` – You created this security group and saved its `GroupId` in **step 1.2.1**.
+- `<Subnet ID A>`, `<Subnet ID B>`, `<Subnet ID C>`, and `<Subnet ID D>` – You retrieved and saved the subnet id of a subset or all availability zones in **step 1.1.3**. As a reminder, I arbitrarily use four availability zones and their subnet for the ECS service; adjust the list of subnet ids to match what you selected when creating your ECS service.
+- `<VPC ID>` – You retrieved and saved this value in **step 1.1.2**.
 
 #### 3.2.1 – Create the NLB
 
 First, you create the Network Load Balancer (NLB).
 
 - Execute the following AWS CLI command to create the NLB.
+  - Replace `<Security Group for All Resources>`, `<Subnet ID A>`, `<Subnet ID B>`, `<Subnet ID C>`, and `<Subnet ID D>` with the values you picked or copied in previous steps.
 
+  ```bash
+  aws elbv2 create-load-balancer \
+    --name Flex-GW-Load-Balancer  \
+    --subnets <Subnet ID A> <Subnet ID B> <Subnet ID C> <Subnet ID D> \
+    --security-groups <Security Group for All Resources> \
+    --tags Key=Project,Value="Flex on ECS" \
+    --type network \
+    --query "LoadBalancers[*].{NLBArn: LoadBalancerArn, DNSName: DNSName}"
+  ```
 
-- Replace `<Security Group for All Resources>`, `<Subnet ID A>`, `<Subnet ID B>`, `<Subnet ID C>`, and `<Subnet ID D>` with the values you picked or copied in previous steps.
-
-aws elbv2 create-load-balancer \
---name Flex-GW-Load-Balancer \
---subnets \<Subnet ID A\> \<Subnet ID B\> \<Subnet ID C\> \<Subnet ID D\> \
---security-groups \<Security Group for All Resources\> \
---tags Key=Project,Value="Flex on ECS" \
---type network \
---query "LoadBalancers\[\`\].{NLBArn: LoadBalancerArn, DNSName: DNSName}"
-
-<img src="assets/media/image54.png" style="width:6.5in;height:1.91528in" />
+  <img src="assets/images/flex-on-ecs-3-2-1-01-create-nlb.png" style="width:6.5in;height:1.9in" />
 
 Copy and save the value of the `NLBArn` and `DNSName` properties, as you will need them in the upcoming steps. I refer to these values as `<NLB ARN>` and `<NLB DNS Name>` respectively throughout this guide.
 
 #### 3.2.2 – Create Target Groups
 
-Next, you create one target group per port you plan to leverage with Flex Gateway. As a reminder, the ECS task definition I used in this guide (step [1.6.4 – Create an ECS Task Definition](#create-an-ecs-task-definition)) includes two port mappings, namely 8081 and 8082. Hence, I create two target groups in my AWS account. As another reminder, I used port 8081 for the `<Downstream Endpoint Port>` when I registered my API in [step 3.1.1](#register-the-api), and that is the port number I use for the NLB health checks.
+Next, you create one target group per port you plan to leverage with Flex Gateway. As a reminder, the ECS task definition I used in this guide (**step 1.6.4 – Create an ECS Task Definition**) includes two port mappings, namely 8081 and 8082. Hence, I create two target groups in my AWS account. As another reminder, I used port 8081 for the `<Downstream Endpoint Port>` when I registered my API in **step 3.1.1**, and that is the port number I use for the NLB health checks.
 
 - Execute the following AWS CLI command to create the target group for your `<Downstream Endpoint Port>` (i.e., 8081 in this guide).
+  - Replace `<Downstream Endpoint Port>` and `<VPC ID>` with the values you picked or copied in previous steps.
 
+  ```bash
+  aws elbv2 create-target-group \
+    --name Flex-Targets-<Downstream Endpoint Port> \
+    --protocol TCP \
+    --port <Downstream Endpoint Port> \
+    --vpc-id <VPC ID> \
+    --health-check-protocol TCP \
+    --target-type ip \
+    --tags Key=Project,Value="Flex on ECS" \
+    --query "TargetGroups[*].{TGArn: TargetGroupArn}"
+  ```
 
-- Replace `<Downstream Endpoint Port>` and `<VPC ID>` with the values you picked or copied in previous steps.
-
-aws elbv2 create-target-group \
---name Flex-Targets-\<Downstream Endpoint Port\> \
---protocol TCP \
---port \<Downstream Endpoint Port\> \
---vpc-id \<VPC ID\> \
---health-check-protocol TCP \
---target-type ip \
---tags Key=Project,Value="Flex on ECS" \
---query "TargetGroups\[\`\].{TGArn: TargetGroupArn}"
-
-<img src="assets/media/image55.png" style="width:6.5in;height:2.05625in" />
+  <img src="assets/images/flex-on-ecs-3-2-2-01-create-target-group-1.png" style="width:6.5in;height:2.1in" />
 
 Copy and save the value of the `TGArn` property, as you need it in the next step. I refer to this value as `<Target Group 1 ARN>` for the remainder of this guide.
 
 - Execute the AWS CLI command above to create any additional target groups if applicable.
+  - Replace `<ECS Task Port Mapping>` with a port mapping from your ECS task definition.
+  - Replace `<Downstream Endpoint Port>` (see remark below) and `<VPC ID>` with the values you picked or copied in previous steps.
 
-
-- Replace `<ECS Task Port Mapping>` with a port mapping from your ECS task definition.
-
-- Replace `<Downstream Endpoint Port>` (see remark below) and `<VPC ID>` with the values you picked or copied in previous steps.
-
+```bash
 aws elbv2 create-target-group \
---name Flex-Targets-\<ECS Task Port Mapping\> \
---protocol TCP \
---port \<ECS Task Port Mapping\> \
---vpc-id \<VPC ID\> \
---health-check-protocol TCP \
---health-check-port \<Downstream Endpoint Port\> \
---target-type ip \
---tags Key=Project,Value="Flex on ECS" \
---query "TargetGroups\[\`\].{TGArn: TargetGroupArn}"
+  --name Flex-Targets-<ECS Task Port Mapping> \
+  --protocol TCP \
+  --port <ECS Task Port Mapping> \
+  --vpc-id <VPC ID> \
+  --health-check-protocol TCP \
+  --health-check-port <Downstream Endpoint Port> \
+  --target-type ip \
+  --tags Key=Project,Value="Flex on ECS" \
+  --query "TargetGroups[*].{TGArn: TargetGroupArn}"
+```
 
-<img src="assets/media/image56.png" style="width:6.5in;height:2.26389in" />
+  <img src="assets/images/flex-on-ecs-3-2-2-02-create-target-group-2.png" style="width:6.5in;height:2.3in" />
 
 Copy and save the value of the `TGArn` property for all target groups you create, as you need them in the next step. I refer to these values as `<Target Group 2..n ARN>` for the remainder of this guide.
 
@@ -1169,19 +1144,19 @@ Copy and save the value of the `TGArn` property for all target groups you create
 Similarly, you create one listener per port you plan to leverage with Flex Gateway.
 
 - Execute the following AWS CLI command to create a listener.
+  - Replace `<NLB ARN>` and `<Target Group 1 ARN>` with the values copied from the previous steps.
 
+  ```bash
+  aws elbv2 create-listener \
+    --load-balancer-arn <NLB ARN> \
+    --protocol TCP \
+    --port 8081 \
+    --default-actions Type=forward,TargetGroupArn=<Target Group 1 ARN> \
+    --tags Key=Project,Value="Flex on ECS" \
+    --no-cli-pager
+  ```
 
-- Replace `<NLB ARN>` and `<Target Group 1 ARN>` with the values copied from the previous steps.
-
-aws elbv2 create-listener \
---load-balancer-arn \<NLB ARN\> \
---protocol TCP \
---port 8081 \
---default-actions Type=forward,TargetGroupArn=\<Target Group 1 ARN\> \
---tags Key=Project,Value="Flex on ECS" \
---no-cli-pager
-
-<img src="assets/media/image57.png" style="width:6.5in;height:2.92708in" />
+  <img src="assets/images/flex-on-ecs-3-2-3-01-create-listener-1.png" style="width:6.5in;height:2.9in" />
 
 - Execute the AWS CLI command above to create additional listeners for `<Target Group 2..n ARN>` if necessary. Although not illustrated in this guide, I created two listeners in my AWS account.
 
@@ -1193,69 +1168,50 @@ Finally, you are ready to update your ECS service to increase the number of Flex
 
 #### 3.3.1 – Create New Service JSON File
 
-As a reminder, the JSON file you created in [step 2.2.1](#create-service-json-file) creates a minimalistic ECS service that starts a single Flex Gateway replica. My preferred approach is to create another JSON file to update your ECS service, which is already running. Here again, as the content of this new JSON file is specific to your Flex Gateway instance, my typical file naming convention is as follows.
+As a reminder, the JSON file you created in **step 2.2.1** creates a minimalistic ECS service that starts a single Flex Gateway replica. My preferred approach is to create another JSON file to update your ECS service, which is already running. Here again, as the content of this new JSON file is specific to your Flex Gateway instance, my typical file naming convention is as follows.
 
-ECS-Service-\<Flex Instance Name\>-HA-Additions.json
+`ECS-Service-<Flex Instance Name>-HA-Additions.json`
 
 - Create a JSON file that contains the following configuration and name the file as you see fit.
+  - Replace `<ECS Cluster Name>`, `<Flex Instance Name>`, and `<Target Group 1 ARN>` with the values you picked or copied in previous steps.
+  - Ensure you have one load balancer entry per NLB target group / listener pairs.
+  - If you tailored the ECS task definition you created in **step 1.6.4**, ensure the `containerName` value matches value of the setting `containerDefinitions.name` in the task definition.
+  - Optionally, update the `desiredCount` setting with the number of Flex Gateway replicas you want to run.
 
-
-- Replace `<ECS Cluster Name>`, `<Flex Instance Name>`, and `<Target Group 1 ARN>` with the values you picked or copied in previous steps.
-
-- Ensure you have one load balancer entry per NLB target group / listener pairs.
-
-- If you tailored the ECS task definition you created in [step 1.6.4](#create-an-ecs-task-definition), ensure the `containerName` value matches value of the setting `containerDefinitions.name` in the task definition.
-
-- Optionally, update the `desiredCount` setting with the number of Flex Gateway replicas you want to run.
-
-{
-
-"cluster": "\<ECS Cluster Name\>",
-
-"service": "\<Flex Instance Name\>-Service",
-
-"loadBalancers": \[
-
-{
-
-"containerName": "flex-gateway",
-
-"containerPort": 8081,
-
-"targetGroupArn": "\<Target Group 1 ARN\>"
-
-},
-
-{
-
-"containerName": "flex-gateway",
-
-"containerPort": 8082,
-
-"targetGroupArn": "\<Target Group 2..n ARN\>"
-
-}
-
-\],
-
-"desiredCount": 4
-
-}
+  ```json
+  {
+    "cluster": "<ECS Cluster Name>",
+    "service": "<Flex Instance Name>-Service",
+    "loadBalancers": [
+      {
+        "containerName": "flex-gateway",
+        "containerPort": 8081,
+        "targetGroupArn": "<Target Group 1 ARN>"
+      },
+      {
+        "containerName": "flex-gateway",
+        "containerPort": 8082,
+        "targetGroupArn": "<Target Group 2..n ARN>"
+      }
+    ],
+    "desiredCount": 4
+  }
+  ```
 
 #### 3.3.2 – Update ECS Service
 
 Finally, you update the ECS service using the JSON file created in the previous step to add the load balancer and increase the number of Flex Gateway replicas.
 
 - Execute the following AWS CLI command to update the ECS service.
+  - If needed, update the `file` option to include the path of the JSON file.
 
+  ```bash
+  aws ecs update-service \
+    --cli-input-json file://ECS-Service-flex-gw-demo-dev-01-HA-Additions.json \
+    --no-cli-pager
+  ```
 
-- If needed, update the `file` option to include the path of the JSON file.
-
-aws ecs update-service \
---cli-input-json file://ECS-Service-flex-gw-demo-dev-01-HA-Additions.json \
---no-cli-pager
-
-<img src="assets/media/image58.png" style="width:6.5in;height:2.96111in" />
+  <img src="assets/images/flex-on-ecs-3-3-2-01-update-ecs-service.png" style="width:6.5in;height:3.0in" />
 
 #### 3.3.3 – (Optional) View in Anypoint Platform
 
@@ -1271,22 +1227,11 @@ Optionally, you verify that your Flex Gateway replicas connected successfully to
 
 - Finally, click on the name of your Flex Gateway instance.
 
-<img src="assets/media/image59.png" style="width:6.5in;height:3.03194in" />
+  <img src="assets/images/flex-on-ecs-3-3-3-01-connected-flex-replicas.png" style="width:6.5in;height:3.0in" />
 
-Notice in the screen capture the five connected Flex Gateway replicas, which is expected. ECS uses a rolling update approach when you make changes. For example, in [step 3.3.1](#create-new-service-json-file), I specified 4 for the `desiredCount` setting in my new service JSON file. When I applied this change (and others) in [step 3.3.2](#update-ecs-service-1), ECS first launched new tasks and containers to reflect my changes. And once the new containers are healthy, it removes the one started before I made the changes. After a while, the number of connected Flex Gateway replicas will match the `desiredCount` setting in your ECS service JSON file.
+Notice in the screen capture the five connected Flex Gateway replicas, which is expected. ECS uses a rolling update approach when you make changes. For example, in **step 3.3.1**, I specified 4 for the `desiredCount` setting in my new service JSON file. When I applied this change (and others) in **step 3.3.2**, ECS first launched new tasks and containers to reflect my changes. And once the new containers are healthy, it removes the one started before I made the changes. After a while, the number of connected Flex Gateway replicas will match the `desiredCount` setting in your ECS service JSON file.
 
 # Conclusion
 
-In this informal guide, I described a suggested approach to running Anypoint Flex Gateway in Connected mode on Amazon Elastic Container Service and AWS Fargate. When I started authoring it, I set the goal of covering only the AWS services and resources I leveraged to complete my proof of concept (POC), and that is what I delivered.
+In this informal guide, I described a suggested approach to running Anypoint Flex Gateway in Connected mode on Amazon Elastic Container Service and AWS Fargate. When I started authoring it, I set the goal of covering only the AWS services and resources I leveraged to complete my proof of concept (POC), and that is what I delivered. I have several ideas for additional topics and improvements to this document, and aim to continue working on this informal guide during my spare time.
 
-I have several ideas for additional topics and improvements to this document (e.g., creating a custom VPC with private subnets, configuring TLS). I also welcome feedback and ideas for improvements (<abelisle@salesforce.com>).
-
-In closing, I aim to continue working on this informal guide during my spare time.
-
-# Revision History
-
-| **Date**   |     | **Author**   | **Description**         |
-|------------|-----|--------------|-------------------------|
-| 2024/02/15 | WIP | Alan Belisle | Work in progress draft. |
-| 2024/03/12 | 0.9 | Alan Belisle | Initial draft.          |
-|            |     |              |                         |
