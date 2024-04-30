@@ -118,7 +118,8 @@ First, gathering some basic information required to provision and configure reso
 
 - Copy and save this value, as you will need it in several upcoming steps. I refer to this value as `<AWS Region Name>` throughout this guide.
 
-> Note: As a reminder, you typically set the default region the AWS CLI interacts with when configuring it, as implied in the command above. Feel free to work in a different AWS region, but make sure the AWS CLI is configured accordingly.
+> [!NOTE]
+> As a reminder, you typically set the default region the AWS CLI interacts with when configuring it, as implied in the command above. Feel free to work in a different AWS region, but make sure the AWS CLI is configured accordingly.
 
 - If you have not created any VPC, you can execute the following AWS CLI command to see all the information related to it.
 
@@ -130,7 +131,8 @@ First, gathering some basic information required to provision and configure reso
 
 - Copy and save the value of the `VpcId` property, as you will need it in the upcoming steps. I refer to this value as `<VPC ID>` throughout this guide.
 
-> Note: The screen capture above implies the VPC is the default one – i.e., AWS created it when I originally opened my account.
+> [!NOTE]
+> The screen capture above implies the VPC is the default one – i.e., AWS created it when I originally opened my account.
 
 - If you have multiple VPCs in the region you picked, you will get pages of information. Alternatively, you can limit the outputs by using the `--query` option as illustrated in the following example.
 
@@ -222,7 +224,7 @@ You are done creating and configuring the first security group.
 The second security group is different because the source is not an IP address but the security group you just created. The ingress rule you add enables all resources associated with the first security group (e.g., EC2 instance, containers running in ECS) to mount and access the ECS file system.
 
 - Like what you did in the previous steps, execute the following AWS CLI command to create the second security group.
-  - Replace `<VPC ID>` with the value copied from [step 1.1.2](#get-vpc-id).
+  - Replace `<VPC ID>` with the value copied from ***step 1.1.2***.
   - Optionally change the name, description, and tag.
 
   ```bash
@@ -378,7 +380,8 @@ I typically use Amazon Linux when launching a new EC2 instance, as AWS argued it
 
 - Copy the `InstanceId` and save it, as you need it in the next two steps. I refer to this value as `<EC2 Instance ID>` throughout this guide.
 
-> Note: As a force of habit, I picked a `t2.micro` instance type (1 vCPU, 1 GiB Memory). As a reminder, the sole purpose of this EC2 instance is to make it easier to interact with the EFS file system – e.g., create directories and copy files. A `t2.nano` instance type (1 vCPU, 0.5 GiB Memory) should be sufficient for this purpose.
+> [!NOTE]
+> As a force of habit, I picked a `t2.micro` instance type (1 vCPU, 1 GiB Memory). As a reminder, the sole purpose of this EC2 instance is to make it easier to interact with the EFS file system – e.g., create directories and copy files. A `t2.nano` instance type (1 vCPU, 0.5 GiB Memory) should be sufficient for this purpose.
 
 - Unfortunately, the output of the `aws ec2 run-instances` command does not include the public DNS name and IP address of the EC2 instance. Execute the following AWS CLI command to retrieve those values.
   - Replace `<EC2 Instance ID>` with the value you copied from the previous step.
@@ -402,96 +405,108 @@ Next, you mount the EFS file system to the EC2 instance and, optionally, create 
 **Before you begin, make sure you have the following information:**
 
 - `<Key Pair Filename>` – You created the EC2 key pair in ***step 1.4.1***.
-
 - `<EC2 Public DNS name>` – You created the EC2 instance and saved its `PublicDnsName` and `PublicIpAddress` in ***step 1.4.2***.
-
 - `<EFS File System ID>` – You created the EFS file system and saved its `FileSystemId` in ***step 1.3.1***.
 
 #### 1.5.1 – Install Amazon EFS Client
 
-Unfortunately, before you can mount the EFS file system to the EC2 instance, you need to install the Amazon EFS client (a.k.a., `amazon-efs-utils` package). AWS supports a few approaches for installing it, but, in my humble opinion, the most straightforward approach is to install it manually.
+Unfortunately, before you can mount the EFS file system to the EC2 instance, you need to install the Amazon EFS client (a.k.a., `amazon-efs-utils` package). AWS supports a few approaches for installing it, but the most straightforward approach is to install it manually.
 
-For more information about installing the Amazon EFS client, please refer to the article [Using the amazon-efs-utils tools](https://docs.aws.amazon.com/efs/latest/ug/using-amazon-efs-utils.html) in the ***Amazon Elastic File System User Guide***.
+> For more information about installing the Amazon EFS client, please refer to the article [Using the amazon-efs-utils tools](https://docs.aws.amazon.com/efs/latest/ug/using-amazon-efs-utils.html) in the ***Amazon Elastic File System User Guide***.
 
 - First, in a new terminal, execute the following command to connect to the EC2 instance via Secure Shell (SSH).
-
-
 - Replace `<Key Pair Filename>` and `<EC2 Public DNS name>` with the values you copied in previous steps.
 
-ssh -i \<Key Pair Filename\> ec2-user@\<EC2 Public DNS name\>
+  ```bash
+  ssh -i \<Key Pair Filename\> ec2-user@\<EC2 Public DNS name\>
+  ```
 
-<img src="assets/media/image18.png" style="width:6.5in;height:1.51458in" />
+  <img src="assets/images/flex-on-ecs-1-5-1-01-ec2-instance-ssh.png" style="width:6.5in;height:1.5in" />
 
-> > [!NOTE]
+> [!NOTE]
 > `ec2-user` is the default user for an EC2 instance running Amazon Linux. Adjust the command above appropriately if you picked a different AMI and Linux distribution.
 
 - The SSH command prompts you to confirm the connection if it is the first time you connect to the EC2 instance. Reply `yes`, and it will connect and store the host and its key as trusted for future connections.
 
-<img src="assets/media/image19.png" style="width:6.5in;height:2.22639in" />
+  <img src="assets/images/flex-on-ecs-1-5-1-02-ec2-instance-confirm.png" style="width:6.5in;height:2.2in" />
 
 You are now connected to the EC2 instance.
 
 - Although optional, as per Linux sysadmin best practices, execute the following command to update all packages before installing new ones.
 
-sudo yum update -y
+  ```bash
+  sudo yum update -y
+  ```
 
-<img src="assets/media/image20.png" style="width:6.5in;height:1.11597in" />
+  <img src="assets/images/flex-on-ecs-1-5-1-03-ec2-yum-update.png" style="width:6.5in;height:1.1in" />
 
 - Execute the following command to install the `amazon-efs-utils` package.
 
-sudo yum install -y amazon-efs-utils
+  ```bash
+  sudo yum install -y amazon-efs-utils
+  ```
 
-<img src="assets/media/image21.png" style="width:6.5in;height:4.58056in" />
+  <img src="assets/images/flex-on-ecs-1-5-1-04-ec2-yum-install.png" style="width:6.5in;height:4.6in" />
 
-> > [!NOTE]
+> [!NOTE]
 > Refer to the article Installing the [Amazon EFS client on other Linux distributions](https://docs.aws.amazon.com/efs/latest/ug/installing-amazon-efs-utils.html#installing-other-distro) in the ***Amazon Elastic File System User Guide*** if you picked another Linux distribution when launching the EC2 instance.
 
 #### 1.5.2 – Mount EFS File System
 
-Resuming from the previous steps and in the same SSH session, I suggest mounting the EFS file system in the current user's home directory. However, I prefer creating a subdirectory to hold all things related to Flex Gateway, including the mount point.
+The suggested approach is to create a subdirectory in the current user's home directory to hold all things related to a Flex Gateway instance, including the EFS file system mount point.
 
-- You meet both requirements (so to speak) by executing the following command.
+- Resuming from the previous steps, execute the following command.
 
-mkdir -p ~/flex/efs-mount-point
+  ```bash
+  mkdir -p ~/flex/efs-mount-point
+  ```
 
-<img src="assets/media/image22.png" style="width:6.5in;height:1.02708in" />
+  <img src="assets/images/flex-on-ecs-1-5-2-01-create-flex-dir.png" style="width:6.5in;height:1.0in" />
 
-> Note: I use `/home/ec2-user/flex/efs-mount-point` in this guide as the absolute path to access and interact with the EFS file system, but feel free to use a different one. Also, I refer to this value as `<EC2 Local Mount Point>` throughout this guide.
+> [!NOTE]
+> I use `/home/ec2-user/flex/efs-mount-point` in this guide as the absolute path to access and interact with the EFS file system, but feel free to use a different one. Also, I refer to this value as `<EC2 Local Mount Point>` throughout this guide.
 
 - Next, edit the `/etc/fstab` file with a text editor to mount the EFS file system. Using this approach ensures it is remounted automatically when the EC2 instance reboots. For example:
 
-sudo vi /etc/fstab
+  ```bash
+  sudo vi /etc/fstab
+  ```
 
-<img src="assets/media/image23.png" style="width:6.5in;height:1.36458in" />
+  <img src="assets/images/flex-on-ecs-1-5-2-02-vi-fstab-before.png" style="width:6.5in;height:1.4in" />
 
 - Then, add the following line at the end of the file.
+  - Replace `<EFS File System ID>` and `<EC2 Local Mount Point>` with the values you picked or copied in previous steps.
 
+  ```bash
+  <EFS File System ID>:/ <Local Mount Point> efs _netdev,noresvport,tls 0 0
+  ```
 
-- Replace `<EFS File System ID>` and `<EC2 Local Mount Point>` with the values you picked or copied in previous steps.
-
-\<EFS File System ID\>:/ \<Local Mount Point\> efs \_netdev,noresvport,tls 0 0
-
-<img src="assets/media/image24.png" style="width:6.5in;height:1.21458in" />
+  <img src="assets/images/flex-on-ecs-1-5-2-03-vi-fstab-after.png" style="width:6.5in;height:1.2in" />
 
 - Finally, execute the following command to mount the newly added entry in the system's filesystem table.
 
-sudo mount -av
+  ```bash
+  sudo mount -av
+  ```
 
-<img src="assets/media/image25.png" style="width:6.5in;height:1.36458in" />
+  <img src="assets/images/flex-on-ecs-1-5-2-04-mount-av.png" style="width:6.5in;height:1.4in" />
 
 If you configured everything correctly, the system mounts the EFS file system – e.g., security groups, EFS mount target, etc. However, the root user owns the mount point by default.
 
-<img src="assets/media/image26.png" style="width:6.5in;height:1.13958in" />
+  <img src="assets/images/flex-on-ecs-1-5-2-05-ls-efs-mount-point.png" style="width:6.5in;height:1.1in" />
 
 This means you cannot write to the EFS file system.
 
 - Execute the following command to change the mount point’s ownership.
 
-sudo chown ec2-user:ec2-user flex/efs-mount-point
+  ```bash
+  sudo chown ec2-user:ec2-user flex/efs-mount-point
+  ```
 
-<img src="assets/media/image27.png" style="width:6.5in;height:1.13958in" />
+  <img src="assets/images/flex-on-ecs-1-5-2-06-chown-efs-mount-point.png" style="width:6.5in;height:1.1in" />
 
-> Note: Naturally, you could change permissions for the group and others instead of ownership (i.e., `sudo chmod go+w flex/efs-mount-point` or `sudo chmod 777 flex/efs-mount-point`).
+> [!NOTE]
+> Naturally, you could change permissions for the group and others instead of ownership (i.e., `sudo chmod go+w flex/efs-mount-point` or `sudo chmod 777 flex/efs-mount-point`).
 
 - Do not end your SSH session or close the terminal, as you will need it to complete the next steps.
 
@@ -501,28 +516,28 @@ It is not uncommon to have multiple Flex Gateway instances in the same AWS VPC. 
 
 Regardless, I like to name those subdirectories the same as the Flex Gateway instance. First, my typical Flex Gateway naming convention is as follows.
 
-flex-gw-\<business group\>-\<environment\>-\<serial \#\>
+`flex-gw-<business group>-<environment>-<serial #>`
 
 - `<business group>` represents the name of the Anypoint business group where I registered the instance.
-
 - `<environment>` represents the environment in Anypoint Platform where I registered the instance.
-
-- `<serial \#>` is a two-digit number (starting at 01) I add just in case I end up registering multiple instances within the same Anypoint business group and environment.
+- `<serial #>` is a two-digit number (starting at 01) I add just in case I end up registering multiple instances within the same Anypoint business group and environment.
 
 As examples, the Flex Gateway instances I use for demos are typically named `flex-gw-demo-dev-01` and `flex-gw-demo-prod-01`. Therefore, assuming I deploy both Flex Gateway instances in the same AWS VPC, I would create two subdirectories in my EFS file system named `flex-gw-demo-dev-01` and `flex-gw-demo-prod-01`.
 
 - If you ended your SSH session or closed the terminal, execute the following command in a new terminal to reconnect to the EC2 instance via Secure Shell (SSH).
+  - Replace `<Key Pair Filename>` and `<EC2 Public DNS name>` with the values you copied in previous steps.
 
-
-- Replace `<Key Pair Filename>` and `<EC2 Public DNS name>` with the values you copied in previous steps.
-
-ssh -i \<Key Pair Filename\> ec2-user@\<EC2 Public DNS name\>
+  ```bash
+  ssh -i <Key Pair Filename> ec2-user@<EC2 Public DNS name>
+  ```
 
 - Next, create a subdirectory within the EFS file system mount point – i.e., `/home/ec2-user/flex/efs-mount-point` or `~/flex/efs-mount-point` in this guide. As an example:
 
-mkdir `~/flex/efs-mount-point/flex-gw-demo-dev-01`
+  ```bash
+  mkdir `~/flex/efs-mount-point/flex-gw-demo-dev-01`
+  ```
 
-<img src="assets/media/image28.png" style="width:6.5in;height:1.13958in" />
+  <img src="assets/images/flex-on-ecs-1-5-3-01-mkdir-flex-home.png" style="width:6.5in;height:1.1in" />
 
 You can end your SSH session as you no longer need it.
 
@@ -532,19 +547,15 @@ In [Part 2](#part-2-complete-flex-gateway-specific-tasks) of this guide, I will 
 
 You are finally ready to create the ECS cluster and other required resources.
 
-- First, you create a CloudWatch log group, which is required when you want the ECS containers to send log information to CloudWatch Logs.
-
-- Then, you need to create an ECS task execution role in AWS Identity and Access Management (IAM), which grants the ECS containers and Fargate agents permission to make AWS API calls – e.g., send logs to CloudWatch Logs.
-
+- First, you create a CloudWatch log group, which is required to forward the ECS containers' log information to CloudWatch Logs.
+- Then, you need to create an ECS task execution role in AWS Identity and Access Management (IAM), which grants the ECS containers and Fargate agents permission to make AWS API calls – e.g., forward logs to CloudWatch Logs.
 - Next, you create the ECS cluster. As defined in the article [What is AWS Fargate?](https://docs.aws.amazon.com/AmazonECS/latest/userguide/what-is-fargate.html) of the ***Amazon Elastic Container Service Developer Guide***, an ECS cluster is a logical grouping of tasks and services that you can use to isolate applications.
-
 - Finally, you create an ECS task definition. As defined in the article [What is AWS Fargate?](https://docs.aws.amazon.com/AmazonECS/latest/userguide/what-is-fargate.html) of the ***Amazon Elastic Container Service Developer Guide***, an ECS task definition is a JSON file that describes one or more containers that form your application. You can use an ECS service to run and maintain a desired number of tasks simultaneously in an Amazon ECS cluster.
 
 **Before you begin, make sure you have the following information:**
 
-- `<EFS File System ID>` – You created the EFS file system and saved its `FileSystemId` in [step 1.3.1](#create-efs-file-system).
-
-- `<Flex GW Home>` – Optional – [Step 1.5.3](#optional-create-subdirectory) was optional but if you completed it, you created a subdirectory on the EFS file system and saved its name.
+- `<EFS File System ID>` – You created the EFS file system and saved its `FileSystemId` in **step 1.3.1**.
+- `<Flex GW Home>` – Optional – **Step 1.5.3** was optional but if you completed it, you created a subdirectory on the EFS file system and saved its name.
 
 #### 1.6.1 – Create CloudWatch Log Group
 
@@ -552,9 +563,11 @@ First, you create a CloudWatch log group for Flex Gateway on Amazon ECS.
 
 - In a terminal (Linux or Mac), execute the following AWS CLI command to create the log group.
 
-aws logs create-log-group --log-group-name \<Log Group Name\>
+  ```bash
+  aws logs create-log-group --log-group-name <Log Group Name>
+  ```
 
-<img src="assets/media/image29.png" style="width:6.5in;height:1.13958in" />
+  <img src="assets/images/flex-on-ecs-1-6-1-01-create-log-group.png" style="width:6.5in;height:1.1in" />
 
 As implied in the screen capture, I prefix the log group name with the AWS service that sends the log and, in this case, I append the name of my Flex Gateway instance. Feel free to use any convention you prefer. However, note that I refer to this value as `<Log Group Name>` throughout this guide.
 
@@ -566,53 +579,45 @@ As discussed in the article [Amazon ECS task execution IAM role](https://docs.aw
 
 - Create a file named `ECS-Tasks-Trust-Policy.json` that contains the following trust policy.
 
-{
-
-"Version": "2012-10-17",
-
-"Statement": \[
-
-{
-
-"Sid": "",
-
-"Effect": "Allow",
-
-"Principal": {
-
-"Service": "ecs-tasks.amazonaws.com"
-
-},
-
-"Action": "sts:AssumeRole"
-
-}
-
-\]
-
-}
+  ```json
+  {
+    "Version": "2012-10-17",
+    "Statement": [
+      {
+        "Sid": "",
+        "Effect": "Allow",
+        "Principal": {
+          "Service": "ecs-tasks.amazonaws.com"
+        },
+        "Action": "sts:AssumeRole"
+      }
+    ]
+  }
+  ```
 
 - In a terminal (Linux or Mac), execute the following AWS CLI command to create an IAM role named `ECSTaskExecutionRole` using the trust policy created in the previous step.
+  - If needed, update the `file` option to include the path of the `ECS-Tasks-Trust-Policy.json` file.
 
+  ```bash
+  aws iam create-role \
+    --role-name ECSTaskExecutionRole \
+    --assume-role-policy-document file://ECS-Tasks-Trust-Policy.json \
+    --tags Key=Project,Value="Flex on ECS"
+  ```
 
-- If needed, update the `file` option to include the path of the `ECS-Tasks-Trust-Policy.json` file.
-
-aws iam create-role \
---role-name ECSTaskExecutionRole \
---assume-role-policy-document file://ECS-Tasks-Trust-Policy.json \
---tags Key=Project,Value="Flex on ECS"
-
-<img src="assets/media/image30.png" style="width:6.5in;height:3.84583in" />
+  <img src="assets/images/flex-on-ecs-1-6-2-01-create-iam-role.png" style="width:6.5in;height:3.8in" />
 
 Copy and save the value of the `Arn` property, as you will need it in an upcoming step. I refer to this value as `<Execution Role ARN>` throughout this guide.
 
 - Finally, execute the following AWS CLI command to attach the AWS managed `AmazonECSTaskExecutionRolePolicy` policy to the `ECSTaskExecutionRole` role you just created.
 
-aws iam attach-role-policy \
---role-name ECSTaskExecutionRole \
---policy-arn arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
+  ```bash
+  aws iam attach-role-policy \
+    --role-name ECSTaskExecutionRole \
+    --policy-arn arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
+  ```
 
-<img src="assets/media/image31.png" style="width:6.5in;height:1.13958in" />
+  <img src="assets/images/flex-on-ecs-1-6-2-02-attach-policy.png" style="width:6.5in;height:1.1in" />
 
 #### 1.6.3 – Create an ECS Cluster
 
@@ -620,172 +625,109 @@ Then, you create an ECS cluster for Flex Gateway. In the context of this guide, 
 
 - In a terminal (Linux or Mac), execute the following AWS CLI command to create an ECS cluster named `Flex-GW-ECS-Cluster`.
 
-aws ecs create-cluster \
---cluster-name Flex-GW-ECS-Cluster \
---tags key=Project,value="Flex on ECS"
+  ```bash
+  aws ecs create-cluster \
+    --cluster-name Flex-GW-ECS-Cluster \
+    --tags key=Project,value="Flex on ECS"
+  ```
 
-<img src="assets/media/image32.png" style="width:6.5in;height:3.53125in" />
+<img src="assets/images/flex-on-ecs-1-6-3-01-create-ecs-cluster.png" style="width:6.5in;height:3.5in" />
 
-> Note: I named my ECS cluster named `Flex-GW-ECS-Cluster` in this guide, but feel free to name it differently. Also, I refer to this value as `<ECS Cluster Name>` throughout this guide.
+> [!NOTE]
+> I named my ECS cluster `Flex-GW-ECS-Cluster` in this guide, but feel free to name it differently. Also, I refer to this value as `<ECS Cluster Name>` throughout this guide.
 
 #### 1.6.4 – Create an ECS Task Definition
 
 Finally, you first create a JSON file to contain your ECS task definition, which describes how to run the Flex Gateway Docker image, mount your EFS file system, send logs to CloudWatch Logs, etc. As many settings within the task definition are specific to a Flex Gateway instance, my typical file naming convention is as follows.
 
-ECS-Task-Def-\<Flex Instance Name\>.json
+`ECS-Task-Def-<Flex Instance Name>.json`
 
 - Create a JSON file that contains the following ECS task definition and name the file as you see fit.
-
-
-- Replace `<Flex Instance Name>`, `<Execution Role ARN>`, `<Log Group Name>`, `<EFS File System ID>`, and `<Flex GW Home>` with the values you picked or copied in previous steps.
-
-- Optionally change the AWS region and Flex Gateway container and host ports.
-
-{
-
-"family": "\<Flex Instance Name\>-Task-Def",
-
-"networkMode": "awsvpc",
-
-"executionRoleArn": "\<Execution Role ARN\>",
-
-"containerDefinitions": \[
-
-{
-
-"name": "flex-gateway",
-
-"image": "docker.io/mulesoft/flex-gateway:latest",
-
-"portMappings": \[
-
-{
-
-"containerPort": 8081,
-
-"hostPort": 8081,
-
-"protocol": "tcp"
-
-},
-
-{
-
-"containerPort": 8082,
-
-"hostPort": 8082,
-
-"protocol": "tcp"
-
-}
-
-\],
-
-"essential": true,
-
-"mountPoints": \[
-
-{
-
-"sourceVolume": "FlexEFSVolume",
-
-"containerPath": "/usr/local/share/mulesoft/flex-gateway/conf.d",
-
-"readOnly": true
-
-}
-
-\],
-
-"logConfiguration": {
-
-"logDriver": "awslogs",
-
-"options": {
-
-"awslogs-group": "\<Log Group Name\>",
-
-"awslogs-region": "us-east-1",
-
-"awslogs-stream-prefix": "flex-gw"
-
-}
-
-},
-
-"healthCheck": {
-
-"command": \[
-
-"CMD-SHELL",
-
-"flexctl probe --check=liveness \|\| exit 1"
-
-\],
-
-"interval": 30,
-
-"timeout": 5,
-
-"retries": 3
-
-}
-
-}
-
-\],
-
-"volumes": \[
-
-{
-
-"name": "FlexEFSVolume",
-
-"efsVolumeConfiguration": {
-
-"fileSystemId": "\<EFS File System ID\>",
-
-"rootDirectory": "\<Flex GW Home\>"
-
-}
-
-}
-
-\],
-
-"requiresCompatibilities": \[
-
-"FARGATE"
-
-\],
-
-"cpu": "512",
-
-"memory": "1024",
-
-"runtimePlatform": {
-
-"cpuArchitecture": "X86_64",
-
-"operatingSystemFamily": "LINUX"
-
-}
-
-}
+  - Replace `<Flex Instance Name>`, `<Execution Role ARN>`, `<Log Group Name>`, `<EFS File System ID>`, and `<Flex GW Home>` with the values you picked or copied in previous steps.
+  - Optionally change the AWS region and Flex Gateway container and host ports.
+
+  ```json
+  {
+    "family": "<Flex Instance Name>-Task-Def",
+    "networkMode": "awsvpc",
+    "executionRoleArn": "<Execution Role ARN>",
+    "containerDefinitions": [
+      {
+        "name": "flex-gateway",
+        "image": "docker.io/mulesoft/flex-gateway:latest",
+        "portMappings": [
+          {
+            "containerPort": 8081,
+            "hostPort": 8081,
+            "protocol": "tcp"
+          },
+          {
+            "containerPort": 8082,
+            "hostPort": 8082,
+            "protocol": "tcp"
+          }
+        ],
+        "essential": true,
+        "mountPoints": [
+          {
+            "sourceVolume": "FlexEFSVolume",
+            "containerPath": "/usr/local/share/mulesoft/flex-gateway/conf.d",
+            "readOnly": true
+          }
+        ],
+        "logConfiguration": {
+          "logDriver": "awslogs",
+          "options": {
+            "awslogs-group": "<Log Group Name>",
+            "awslogs-region": "us-east-1",
+            "awslogs-stream-prefix": "flex-gw"
+          }
+        },
+        "healthCheck": {
+          "command": [
+            "CMD-SHELL",
+            "flexctl probe --check=liveness || exit 1"
+          ],
+          "interval": 30,
+          "timeout": 5,
+          "retries": 3
+        }
+      }
+    ],
+    "volumes": [
+      {
+        "name": "FlexEFSVolume",
+        "efsVolumeConfiguration": {
+          "fileSystemId": "<EFS File System ID>",
+          "rootDirectory": "<Flex GW Home>"
+        }
+      }
+    ],
+    "requiresCompatibilities": [
+      "FARGATE"
+    ],
+    "cpu": "512",
+    "memory": "1024",
+    "runtimePlatform": {
+      "cpuArchitecture": "X86_64",
+      "operatingSystemFamily": "LINUX"
+    }
+  }
+  ```
 
 - Execute the following AWS CLI command to create the ECS task definition using the JSON file created in the previous step.
+  - If needed, update the `file` option to include the path of the JSON file.
 
+  ```bash
+  aws ecs register-task-definition \
+    --cli-input-json file://ECS-Task-Def-flex-gw-demo-dev-01.json \
+    --tags key=Project,value="Flex on ECS" \
+    --no-cli-pager
+  ```
 
-- If needed, update the `file` option to include the path of the JSON file.
+  <img src="assets/images/flex-on-ecs-1-6-4-01-create-ecs-task-def.png" style="width:6.5in;height:3.1in" />
 
-aws ecs register-task-definition \
---cli-input-json file://ECS-Task-Def-flex-gw-demo-dev-01.json \
---tags key=Project,value="Flex on ECS" \
---no-cli-pager
-
-<img src="assets/media/image33.png" style="width:6.5in;height:3.07361in" />
-
-You provisioned and configured the minimum required AWS resources to run a single Flex Gateway replica. You are ready to move on to [Part 2](#part-2-complete-flex-gateway-specific-tasks) and complete the Flex Gateway-specific tasks, including starting a single replica.
+You provisioned and configured the minimum required AWS resources to run a single Flex Gateway replica. You are ready to move on to **Part 2** and complete the Flex Gateway-specific tasks, including starting a single replica.
 
 ## Part 2 – Complete Flex Gateway-Specific Tasks
 
@@ -866,7 +808,7 @@ ec2-user@\<EC2 Public DNS name\>:\<EC2 Local Mount Point\>/`<Flex GW Home>`/
 
 <img src="assets/media/image38.png" style="width:6.5in;height:1.28958in" />
 
-> > [!NOTE]
+> [!NOTE]
 > `ec2-user` is the default user for an EC2 instance running Amazon Linux. Adjust the command above appropriately if you picked a different AMI and Linux distribution.
 
 ### 2.2 – Create an ECS Service
@@ -1113,7 +1055,8 @@ API Manager creates an asset in Anypoint Exchange of the selected type and name 
 
 <img src="assets/media/image49.png" style="width:6.5in;height:4.35972in" />
 
-> Note: As per the screen capture above, the Downstream relates to the inbound traffic or the endpoint the Flex Gateway instance will expose. The base path is optional when adding a single API per port number and required if multiple APIs are added to the same port number.
+> [!NOTE]
+> As per the screen capture above, the Downstream relates to the inbound traffic or the endpoint the Flex Gateway instance will expose. The base path is optional when adding a single API per port number and required if multiple APIs are added to the same port number.
 
 Make note, remember, or copy the **Protocol**, **Port**, and **Base path** settings as you will need them to validate the API in the next step. I refer to these values as `<Downstream Endpoint Protocol>`, `<Downstream Endpoint Port>`, and `<Downstream Endpoint Base Path>` respectively.
 
@@ -1126,7 +1069,8 @@ Make note, remember, or copy the **Protocol**, **Port**, and **Base path** setti
 
 <img src="assets/media/image50.png" style="width:6.5in;height:3.92431in" />
 
-> Note: There is no hard rule on how much of an API endpoint you must enter for the **Upstream URL** setting. As a rule of thumb, I prefer to enter the domain name or hostname and port number only.
+> [!NOTE]
+> There is no hard rule on how much of an API endpoint you must enter for the **Upstream URL** setting. As a rule of thumb, I prefer to enter the domain name or hostname and port number only.
 >
 > For example, the endpoint of my Credit Check API is:
 > `http://ec2-3-209-205-159.compute-1.amazonaws.com:8081/credit-checks/1`
@@ -1245,7 +1189,7 @@ aws elbv2 create-target-group \
 
 Copy and save the value of the `TGArn` property for all target groups you create, as you need them in the next step. I refer to these values as `<Target Group 2..n ARN>` for the remainder of this guide.
 
-> > [!NOTE]
+> [!NOTE]
 > By default, each target group performs a health check on the port it handles, and you cannot turn it off when using an Elastic Load Balancer with ECS. Regardless, as the name implies, the purpose of the health check is to determine if the target is healthy. In the context of this guide and overall deployment, the real purpose is to determine if the Flex Gateway replica is healthy, not the API that listens on the port you configure for the health check. Therefore, I recommend configuring all target group health checks on the `<Downstream Endpoint Port>` to avoid having to register APIs for all port mappings you leverage with Flex Gateway. As reminder, the NLB will instruct ECS to replace the Flex Gateway replicas if it cannot get a healthy status through the target group health checks.
 
 #### 3.2.3 – Create Listeners
