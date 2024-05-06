@@ -1,0 +1,26 @@
+{
+  "cluster": "<ECS Cluster Name>",
+  "serviceName": "<Flex Instance Name>-Service",
+  "taskDefinition": "<Flex Instance Name>-Task-Def",
+  "launchType": "FARGATE",
+  "schedulingStrategy": "REPLICA",
+  "deploymentController": {
+    "type": "ECS"
+  },
+  "platformVersion": "LATEST",
+  "networkConfiguration": {
+    "awsvpcConfiguration": {
+      "assignPublicIp": "ENABLED",
+      "securityGroups": [
+        "<Security Group for All Resources>"
+      ],
+      "subnets": [
+        "<Subnet ID A>",
+        "<Subnet ID B>",
+        "<Subnet ID C>",
+        "<Subnet ID D>"
+      ]
+    }
+  },
+  "desiredCount": 1
+}

@@ -1,0 +1,17 @@
+{
+  "cluster": "<ECS Cluster Name>",
+  "service": "<Flex Instance Name>-Service",
+  "loadBalancers": [
+    {
+      "containerName": "flex-gateway",
+      "containerPort": 8081,
+      "targetGroupArn": "<Target Group 1 ARN>"
+    },
+    {
+      "containerName": "flex-gateway",
+      "containerPort": 8082,
+      "targetGroupArn": "<Target Group 2..n ARN>"
+    }
+  ],
+  "desiredCount": 4
+}
