@@ -1,0 +1,56 @@
+{
+  "family": "<Flex Instance Name>-Task-Def",
+  "networkMode": "awsvpc",
+  "executionRoleArn": "<Execution Role ARN>",
+  "containerDefinitions": [
+    {
+      "name": "flex-gateway",
+      "image": "docker.io/mulesoft/flex-gateway:latest",
+      "portMappings": [
+        {
+          "containerPort": 8081,
+          "hostPort": 8081,
+          "protocol": "tcp"
+        },
+        {
+          "containerPort": 8082,
+          "hostPort": 8082,
+          "protocol": "tcp"
+        }
+      ],
+      "essential": true,
+      "environment": [
+        {
+          "name": "FLEX_CONFIG",
+          "value": "<Registration File Content with Special Characters Escaped>"
+        }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "<Log Group Name>",
+          "awslogs-region": "us-east-1",
+          "awslogs-stream-prefix": "flex-gw"
+        }
+      },
+      "healthCheck": {
+        "command": [
+          "CMD-SHELL",
+          "flexctl probe --check=liveness || exit 1"
+        ],
+        "interval": 30,
+        "timeout": 5,
+        "retries": 3
+      }
+    }
+  ],
+  "requiresCompatibilities": [
+    "FARGATE"
+  ],
+  "cpu": "512",
+  "memory": "1024",
+  "runtimePlatform": {
+    "cpuArchitecture": "X86_64",
+    "operatingSystemFamily": "LINUX"
+  }
+}
